@@ -27,13 +27,16 @@ enum CapsuleStatus {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  username  String    @unique
-  email     String    @unique
-  password  String
-  capsules  Capsule[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id                   String         @id @default(uuid())
+  username             String         @unique
+  email                String         @unique
+  password             String
+  capsules             Capsule[]
+  refreshToken         RefreshToken[]
+  emailVerifyToken     String?
+  emailVerifyExpiresAt DateTime?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
 }
 
 model Capsule {
@@ -70,4 +73,14 @@ model Recipient {
   capsule Capsule @relation(fields: [capsuleId], references: [id])
 
   @@unique([capsuleId, email])
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  hashedValue String
+  expiresAt   DateTime
+  userId      String
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
