@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MIMETYPE {
+  PDF
+  VIDEO
+  IMAGE
+  TEXT
+}
+
+enum CapsuleStatus {
+  DRAFT
+  SEALED
+  DELIVERED
+  DELETED
+}
+
+model User {
+  id        String    @id @default(uuid())
+  username  String    @unique
+  email     String    @unique
+  password  String
+  capsules  Capsule[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Capsule {
+  id           String        @id @default(uuid())
+  userId       String
+  capsuleFiles CapsuleFile[]
+  unlocksAt    DateTime
+  message      String
+  status       CapsuleStatus @default(DRAFT)
+  recipients   Recipient[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  user         User          @relation(fields: [userId], references: [id])
+}
+
+model CapsuleFile {
+  id         String   @id @default(uuid())
+  capsuleId  String
+  filePath   String
+  fileName   String
+  mimeType   MIMETYPE @default(IMAGE)
+  sizeBytes  BigInt
+  uploadedAt DateTime @default(now())
+
+  capsule Capsule @relation(fields: [capsuleId], references: [id])
+}
+
+model Recipient {
+  id         String    @id @default(uuid())
+  capsuleId  String
+  email      String //TODO: encryption of this field
+  notifiedAt DateTime?
+
+  capsule Capsule @relation(fields: [capsuleId], references: [id])
+
+  @@unique([capsuleId, email])
+}
