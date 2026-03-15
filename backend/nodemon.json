@@ -7,5 +7,5 @@
         "src/**/*.spec.ts",
         "node_modules"
     ],
-    "exec": "ts-node ./src/server.ts"
+    "exec": "tsx ./src/server.ts"
 }
