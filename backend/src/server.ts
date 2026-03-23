@@ -3,7 +3,9 @@ import express from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import rateLimit from 'express-rate-limit'
+import cookieParser from 'cookie-parser'
 
+import env from './env.js'
 import { errorHandler } from './errors.js'
 import authRouter from './routers/authRouter.js'
 
@@ -15,15 +17,8 @@ function start_server(): void {
   app.use(helmet()); // adds all security headers
 
   // cors setup
-  const FRONTEND_URL = process.env.FRONTEND_URL;
-  const port = process.env.PORT;
-
-  if (!FRONTEND_URL || !port) {
-    throw new Error("FRONTEND_URL or PORT not accessed");
-  }
-
   const options: cors.CorsOptions = {
-    origin: [FRONTEND_URL]
+    origin: [env.FRONTEND_URL]
   }
   app.use(cors(options));
 
@@ -40,6 +35,8 @@ function start_server(): void {
 
   app.use(apiLimiter);
 
+  app.use(cookieParser())
+
   // handlers
   app.get('/', (req, res) => {
     res.send('Hello World!')
@@ -55,8 +52,8 @@ function start_server(): void {
   app.use(errorHandler);
 
   // listener
-  app.listen(parseInt(port), () => {
-    console.log(`Example app listening on port ${port}`)
+  app.listen(env.PORT, () => {
+    console.log(`Example app listening on port ${env.PORT}`)
   })
 
 }
